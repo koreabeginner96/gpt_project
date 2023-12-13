@@ -143,4 +143,10 @@ _type: "prompt"
 template: "What is the capital of {country}"
 input_variables: ["country"]
 
- prompt들의 메모리를 다 모으는 방법
+다양한 prompt 합치는 방법
+piplineprompts
+여러가지 prompts가있고(promptTemplate)로 작성한다.
+마지막에 prompts 를 묶는다 final 
+pipline_prompts를 만들어서 정의한다.
+piplineprompttmplate를 이용하 final_prompt 정의하고, pipline_prompt 정의한다
+chain 걸기 / chain invoke 설정하기 
