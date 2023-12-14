@@ -1,0 +1,25 @@
+5가지 방식의 메모리가 있다.
+모든 메모리는 save_context, load_memory_variables 라는 함수를 가지고 있다.
+return_message는  chat 모델일 경우에만 적용하고 아닐 경우에는 안해도 된다.
+k=bufferwindow의 사이즈 즉 몇개의 메세지를 저장할지 뜻함.
+max_token_limit summerbuffermemory에서 메세지 토큰 수의 최댓값을 의미함 즉 메시지 요약하기전에 최대 얼마나 저장할 건지에 대해 정의하는 값
+memory.load_memory_variables({"input":"성호 wants to him?"}) 메모리 실제로 어떤걸 기억하는지나 질문을 할 수도 있다.아무것도 입력안할경우 저장된걸 전부 보여준다.
+
+
+ConversationBuffermemory
+특징: 그냥 단순히 이전 대화 내용을 전체를 계속 저장하는 메모리
+단점 : 대화 내용이 길어질 수록 메모리도 계속 커지니깐  비효율적이다. 그래서 돈도 많이 든다.
+
+ConversationBufferWindowMemory
+특징 : 대화의 특정 부분,제일 최근 부분을 저장하는 메모리, 저장 범위 설정 가능,
+단점: 챗봇이 전체 대화가아닌 최근 대화에만 집중을 한다.
+
+ConversationSummaryMemory
+특징 : 매우 긴 대화 내용을 요약해준다. 초반에 조금 토큰이 많이 들어 갈 수 있으나 나중에는 요약한 것이 토큰의 양도 적게사용한다.
+단점 : 초반에는 다른 메모리보다 토큰을 더 많이 사용한다.
+
+ConversationSummaryBufferMemory(우리가쓰기 좋아보임)
+특징 : ConversationSummaryMemory+ConversationBuffermemory, 메모리에 보내온 메시지의 수를 저장하는 것, limit 도달시 그냥 사라지는게 아니라 오래된 메시지들을 summmarize 함
+
+ConversationKGMemory(conversation knowledge graph memory)
+특징 : 가장 중요한 정보만 추출하여 요약함.
