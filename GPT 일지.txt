@@ -167,3 +167,5 @@ sqlite 뿐만아니라 공식문서에는 여러가지 cache를 저장 할 수 �
 with get_openai_callback() as usage:
 	print(usage)
 사용 토큰량에 따라 가격이 비례한다.
+
+모델 설정 저장/불러오기하는 방법
