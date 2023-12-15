@@ -4,7 +4,7 @@ return_message는  chat 모델일 경우에만 적용하고 아닐 경우에는 
 k=bufferwindow의 사이즈 즉 몇개의 메세지를 저장할지 뜻함.
 max_token_limit summerbuffermemory에서 메세지 토큰 수의 최댓값을 의미함 즉 메시지 요약하기전에 최대 얼마나 저장할 건지에 대해 정의하는 값
 memory.load_memory_variables({"input":"성호 wants to him?"}) 메모리 실제로 어떤걸 기억하는지나 질문을 할 수도 있다.아무것도 입력안할경우 저장된걸 전부 보여준다.
-
+memory_key=간단히 말하면 memory.load_memory_variable({})
 
 ConversationBuffermemory
 특징: 그냥 단순히 이전 대화 내용을 전체를 계속 저장하는 메모리
@@ -22,5 +22,27 @@ ConversationSummaryBufferMemory(우리가쓰기 좋아보임)
 특징 : ConversationSummaryMemory+ConversationBuffermemory, 메모리에 보내온 메시지의 수를 저장하는 것, limit 도달시 그냥 사라지는게 아니라 오래된 메시지들을 summmarize 함
 
 ConversationKGMemory(conversation knowledge graph memory)
-특징 : 가장 중요한 정보만 추출하여 요약함.
+특징 : 가장 중요한 정보만 추출하여 요약함.	
 
+LLM cahin
+
+verbose= chain의 프롬프트 로그들을 확인 할 수 있다.
+
+off-the-self chain 일반적인 목적을 가진 체인
+단점: 빠르게 시작 할 수 있어 좋지만 커스텀 체인이 좀더 활용도가 높다.
+메모리를 저장하려면 공간을 만들어야함 ex) {chat_history} memory key로 연결을하면된다.
+
+memory class 는 두가지 방식으로 출력이 가능하다.
+문자열 형태 , message 형태
+대화 기반의 채팅 메시지로 바꾸는 법 return_message= True, chatPromptTemplate,messageplaceholer
+messageplaceholer는  크기를 알 수 없기 때문에 messageplaceholder를 message class 로 대체 함.
+
+LCEL(LangChain Expression Language)
+prompt와 memory class는 변화지않으며
+prompt 내에 messageplaceholeder가지고있으며
+messageplaceholeder안에 history 메세지값을 넣어주길 원한다(수와숫자 상관없음)
+수동으로 저장하고 가져오기
+쳇프롬프트 템플릿으로 저장하는데 messageplaceholeder 사용한다 휴먼은 변수로 설정
+load_memory를 써서 예전 데이터를 가져오는 함수를 만든다.
+체인에 (데이터전달)RunnablePassthrough.assign 써서 역는다 | prompt | llm
+invoke_chain 함수 만들기 result = invoke 설정하고 , 중간에 memory.save 당겨와서내용 저장, 마지막 print 결과 보여준다.
