@@ -1,0 +1,6 @@
+Retrieval-Augmented Generation(검색 증강 생성)
+개인으로 부터 제공된 data를 사용하거나 탐색함으로써
+stuff documents
+우리 질문을 우리 개인의 문서와 함께 prompt에서 합치는거다.
+사용자 질문 ->  저장된 vector에서 탐색 -> 질문과 vecotor를 함꼐가지고 prompt 이동 -> 모델은 우리의질문, 이미학습된 data ,추가로 보낸 data까지 가지고 있다. 우리가 보낸데이터에서 가지고 답변을 할 수도있다.
+다른 document도 다양하겠 있지만 어떤모델을 쓸껀지 얼마나 많은 토큰을  사용할 수 있는지에 따라 달라진다.
