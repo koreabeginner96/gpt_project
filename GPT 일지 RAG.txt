@@ -4,3 +4,71 @@ stuff documents
 우리 질문을 우리 개인의 문서와 함께 prompt에서 합치는거다.
 사용자 질문 ->  저장된 vector에서 탐색 -> 질문과 vecotor를 함꼐가지고 prompt 이동 -> 모델은 우리의질문, 이미학습된 data ,추가로 보낸 data까지 가지고 있다. 우리가 보낸데이터에서 가지고 답변을 할 수도있다.
 다른 document도 다양하겠 있지만 어떤모델을 쓸껀지 얼마나 많은 토큰을  사용할 수 있는지에 따라 달라진다.
+
+Retrival은 랭체인의 모듈
+소스-> 로드 -> 데이터 분리 -> 임베디드(텍스트에서 컴퓨터가 이해할수 있는 숫자로 변환) -> 숫자 저장 -> 특정 숫자 검색
+
+vsextention -  Markdown PDF 설치하면 md 파일을 다른 텍스트버전으로 바꿔준다.
+실제 파일 load 해보기
+
+RecursiveCharacterTextSplitter
+분활하기 RecursiveCharacterTextSplitter 특징: 문장끝이나 문단 끝 부분마다 끊어주는거지
+chunk_size 특징 크기에맞게 잘라주지만 문장을 전혀 신경쓰지 않는다.
+chunk_overlap 앞뒤 문장을 가져와 끊어진 문장 없이 매끄럽게 해줌
+
+CharacterTextSplitter
+separator 특징: 주어진 문자열 기준으로 나눈다. ex) "\n"
+
+token
+단어하나,두개 또는 공백포함 단어하나를 토큰한개로 처리한다. openai에서 확인을해볼수있다.
+
+embedding
+사람이 읽는 텍스트를 컴퓨터가 이해할 수 있는 숫자들로 변환하는 작업 즉 vector를 만드는 작업이야
+vector 문서들을 숫자로 변환 simlir_words라는 웹사이트에서 연관성높은 애들을 검색해볼 수있다.
+embed를 매번 코드를 실행할 때마다 하는것 은 좋은게 아니다.
+vector_store
+chroma를 써서 해보기
+모든 문서를 백터로 바꿨고, 그 백터를 넣은 vectsotre를 활용해서 검색을 해봤고, 해당 vector를 stroe cache 해봤고  다음에 같은 질문을 하게된다면 해당 캐쉬를 가져오게끔 구현을 해봄.
+
+langsmith
+체인을 무엇을 하고 있는지 시각적으로 볼 수 있음(beta버전이라 가입만 신청한상태)
+
+Recape
+file_load(UnstructuredFileLoader)
+split(긴 text를 나눈기 위해)->LLM 전달할때 검색 성능이 좋아지고,가격이저렴해지고,작업도 쉬워지고 응답도 빨라짐)
+
+embedding
+의미별로 적절한 점수를 부여해서 vector 형식으로 표현(openAIEmbeddings model사용)
+CacheBackedEmbeddings응 사용하여 Embedding을 저장함.
+
+Vector store
+FAISS를 사용해서 docs와 cache_embeddings 메서드 호출
+문서 검색, 연관성도 높은 문서를 찾기도 해줌
+
+retriever
+질문이나 그와 관련성있는 documnet를 얻기 위한 query를 입력하는곳
+
+chain_type
+MapReduce 
+일종의 중간 답변들을 기반으	로 최종 응답을 반환해줌
+Map_rerank
+차이점 순회하면서 작업을 하는데 답변에 점수를 매겨줌 그중 가장 높은 점수의 답변을 우리에게 반환해준다.
+refine
+document들을 읽으면서 답변을 생성하고 읽은 documnet들을 기반으로 처음의 답변을 업데이트 하고 refine해줌(정제하다)
+
+runnablepassthrough 기능 
+입력값이 말그대로 통과하게 하는 기능 
+chain = {"context" :retriver(), "question" : RunnablePassthrough()} | prompt | llm
+chain.invoke("Describe Victory Mansions") 
+invoke에 입력값이 그대로 question에 들어 간다.
+
+
+map_reduce
+string 값을 입력받고 documents 들을 출력해준다.
+RunnableLambda chain과 그 내부에 어디에서든 function을 호출 할 수 있도록 함.
+정리 chain 의 값을 받기위해 map_chain을 실행한다.
+map_chain의 목표는 한개의 string을 반환 하는 거다.
+map_doc_chain의 invoke 결과로 만들어진 result의 content list를 만드는 것
+
+동작원리
+retriever로부터 documents들을 입력받고, llm을 통해, 추출된 documents살펴보면서 각 문서에 대해 생성된 응답들을 전부 합쳐 한 개의 최종 문서를 만들고 그 후에 documnet를 final prompt에 입력하여 llm 전달한다면 질문에 대답을 해준다.final_prompt를 필요한건 context와 question 이다. question 간단한게 RunnablePassthrough() 입력된 값 그대로 가져다쓰고 context의 경우 모든 추출된 document를 합친 최종이다. 얻기 위해 map_chain을 만들었다. mac_docs retriver로부터 얻은 document들과 사용자의 question을 필요로 함 question은 map_chain의 RunnablePassthrough()했고 documents는 amp_chain의 retriever를 적용했다.여기서 바로 적용했던 invoke의 값을 가져온다.  RunnableLambda(map_docs)를 쓰는데 입력된 아무 function을 실행 시켜준다. 그래서 map_docs.chain을 실행한다. 이체인은  문서를 읽고 관련정보과있다면 전달해달라는 내용이다. content부분을 반환하게하기 
